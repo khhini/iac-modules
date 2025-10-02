@@ -12,7 +12,7 @@ module "cloudbuild_pipeline" {
   ]
 
   cd_pipeline_trigger_yaml = "./deployment/build/cloudbuild.cd.yaml"
-  trigger_branch_name      = "^main*"
+  trigger_branch_name      = var.trigger_branch_name
 
   cloudbuild_service_account = {
     name = "cloudbuild-sa"
@@ -23,13 +23,16 @@ module "cloudbuild_pipeline" {
     create = false
   }
 
-  cloudbuildv2_connection_id = "projects/khhini-devops-2705/locations/asia-east1/connections/khhini"
-  app_github_remote_repo     = "https://github.com/khhini/devsecops-template.git"
+  app_repository = {
+    connection_id = "projects/khhini-devops-2705/locations/asia-east1/connections/khhini",
+    remote_uri    = "https://github.com/khhini/devsecops-template.git"
+    repo_type     = "GITHUB"
+  }
 
   labels = {
     app     = "example-app"
     service = "backend"
-    env     = "dev"
+    env     = var.app_env
   }
 
 }

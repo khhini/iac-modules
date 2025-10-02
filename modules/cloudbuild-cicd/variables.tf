@@ -25,7 +25,6 @@ variable "cloudbuild_service_account" {
   EOT
 }
 
-
 variable "ci_pipeline_trigger_yaml" {
   type        = string
   description = "Name of CI pipeline cloudbuild yaml file"
@@ -46,15 +45,47 @@ variable "trigger_branch_name" {
   description = "A regular expression to match one or more branches for the build trigger."
 }
 
-variable "app_github_remote_repo" {
-  type        = string
-  description = "Github remote repository uri"
+variable "app_repository" {
+  type = object({
+    connection_id = optional(string, null)
+    remote_uri    = optional(string, null)
+    repo_type     = optional(string, null)
+    project_id    = optional(string, null)
+    name          = optional(string, null)
+    create        = optional(bool, true)
+  })
+  description = <<-EOT
+    Paramters that will be used to define Application Repository.
+    If create fields set to false. terraform will get data of existing resources.
+    Example: 
+      # USING GITHUB REPOSITORY
+      app_repository = {
+        connection_id     = ""  
+        remote_uri = "https://github.com/khhini/example"
+        repo_type         = "GITHUB"
+        create            = false
+      }
+      # USING CLOUD_SOURCE_REPOSITORIES
+      app_repository = {
+        name              = "app_repository"
+        project_id        = "source-repo-project-id"
+        repo_type         = "CLOUD_SOURCE_REPOSITORIES"
+        create            = false
+      }
+  EOT
+
+  validation {
+    condition     = contains(["GITHUB", "CLOUD_SOURCE_REPOSITORIES"], var.app_repository.repo_type)
+    error_message = "Invalid app_repository.repo_type. Must be one of: 'GITHUB', or 'CLOUD_SOURCE_REPOSITORIES'."
+  }
 }
 
 variable "google_artifact_registry" {
   type = object({
-    name   = string
-    create = optional(bool, true)
+    name       = string
+    project_id = optional(string, null)
+    location   = optional(string, null)
+    create     = optional(bool, true)
   })
   description = <<-EOT
     Parameters that will be used to define Google Artifact Registry.
@@ -99,9 +130,4 @@ variable "labels" {
     }
   EOT
   type        = map(string)
-}
-
-variable "cloudbuildv2_connection_id" {
-  type        = string
-  description = "Cloudbuild V2 Connection ID for Github remote repository"
 }

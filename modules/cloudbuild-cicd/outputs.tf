@@ -8,6 +8,11 @@ output "google_artifact_registry_base_uri" {
   description = "Google Artifact Registry base uri"
 }
 
+output "google_artifact_registry_repository_id" {
+  value       = local.gar_repository_id
+  description = "Google Artifact Registry repository id"
+}
+
 output "ci_pipeline_trigger_id" {
   value = google_cloudbuild_trigger.ci_pipeline_trigger.trigger_id
 }
